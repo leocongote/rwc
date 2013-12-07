@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+
+.year.label {
+  font: 500 196px "Helvetica Neue";
+  fill: #ddd;
+}
+.ronaldo {
+    background-image: url(img/ronaldo.png); 
+    background-repeat: no-repeat;
+  
+}
+.rivery {
+    background-image: url(img/ronaldo.png); 
+    background-repeat: no-repeat;
+}
+.year.label {
+  font: 500 100px "Helvetica Neue";
+  fill: #ddd;
+}
+.goleador {
+  font: 500 100px "Helvetica Neue";
+  color: #01acb5 ;
+}
+</style>
+
+<body>
+<span class="year label"> Goleador, Quién?</span>
+</br>
+<script src="js/d3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 1160;
+
+var top_img=500;
+var posicion=300;
+var goles_max=0;
+
+var posiciones=[top_img,top_img,top_img];
+var person_pos={"Rivery":0,"Ronaldo":1,"Messi":2};
+var pos_per={0:"Rivery",1:"Ronaldo",2:"Messi"};
+
+var display = d3.select("body");
+
+
+var quantize = d3.scale.linear()
+    .domain([250, 500])
+    .range([20,0]);
+
+console.log("quant:"+quantize(300));
+var chartContainer1 = display.append("div")
+    .attr("id", "Ronaldo")
+    .style({width: "100px", 
+            height: "100px", 
+            top: top_img+"px",
+            left: "200px",
+            position: "absolute"
+           })
+    .call(d3.behavior.drag().on("drag", move));
+
+chartContainer1.append("svg")
+    .append('svg:image')
+    .attr('xlink:href', 'img/ronaldo.png')
+    .attr('width', 100)
+    .attr('height', 100);
+
+
+    
+var chartContainer2 = display.append("div")
+    .attr("id", "Rivery")
+    .style({width: "100px", 
+            height: "100px", 
+            top: top_img+"px",
+            left: "400px",
+            position: "absolute"
+        })
+    .call(d3.behavior.drag().on("drag", move));
+
+chartContainer2.append("svg")
+    .append('svg:image')
+    .attr('xlink:href', 'img/rivery.png')
+    .attr('width', 100)
+    .attr('height', 100);
+
+var chartContainer3 = display.append("div")
+    .attr("id", "Messi")
+    .style({width: "100px", 
+            height: "100px", 
+            top: top_img+"px",
+            left: "300px",
+            position: "absolute"
+           })
+    .call(d3.behavior.drag().on("drag", move));
+
+chartContainer3.append("svg")
+    .append('svg:image')
+    .attr('xlink:href', 'img/messi.jpg')
+    .attr('width', 100)
+    .attr('height', 100);
+
+var label = display.append("text")
+    .attr("class", "goleador")
+    .attr("text-anchor", "end")
+    .attr("y", 150)
+    .attr("x", width)
+    .text("************");
+
+var label_gol = display.append("text")
+    .attr("class", "goleador")
+    .attr("text-anchor", "end")
+    .attr("y", 150)
+    .attr("x", width)
+    .text(" goles:0");
+ 
+function move(){
+    this.parentNode.appendChild(this);
+    var dragTarget = d3.select(this);
+    
+    dragTarget.style({
+        left: d3.event.dx + parseInt(dragTarget.style("left")) + "px",
+        top: d3.event.dy + parseInt(dragTarget.style("top")) + "px"
+    });
+    
+    posiciones[person_pos[dragTarget.attr("id")]]=parseInt(dragTarget.style("top"));
+    //console.log("quien:"+posiciones[dragTarget.attr("id")]);
+    var i = posiciones.indexOf(Math.min.apply(Math, posiciones));
+    
+    console.log(pos_per[i]);
+    label.text(pos_per[i]);
+    
+        if(Math.round(quantize(Math.min.apply(Math, posiciones)))>19)
+        {
+            record="Record!!!";
+        }else
+        {
+            record="";
+        }
+        label_gol.text(" goles:"+Math.round(quantize(Math.min.apply(Math, posiciones)))+" "+record);
+        goles_max=Math.round(quantize(parseInt(dragTarget.style("top"))));
+    
+   
+    
+}
+
+
+</script>
