@@ -33,20 +33,58 @@
   font: 500 100px "Helvetica Neue";
   color: #01acb5 ;
 }
+.jugador {
+  font: 500 25px "Helvetica Neue";
+  color: #01acb5 ;
+}
 </style>
 
 <body>
 <span class="year label"> Goleador, Quién?</span>
+<button onmousedown="enviarGoleador()">Enviar Goleador</button></br>
 </br>
 <script src="js/d3.min.js"></script>
+<script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
 <script>
 
 var width = 960,
     height = 1160;
 
-var top_img=500;
+var top_img=550;
 var posicion=300;
 var goles_max=0;
+var global=0;
+var goleador="";
+var sumaGoleador=[0,0,0];
+//Leo la lista message_list 
+var dataRefr = new Firebase('https://leocongote.firebaseio.com/message_list');
+//recorre la lista cada vez que hay un cambio en ella
+dataRefr.on('child_added', function(snapshot) {
+    //leo los valores de la lista
+    global=snapshot.val();
+
+    if(global.user_id=="Ronaldo")
+    {
+    sumaGoleador[0]=sumaGoleador[0]+1;
+    console.log(global.user_id);
+
+    }
+    if(global.user_id=="Rivery")
+    {
+    sumaGoleador[1]=sumaGoleador[1]+1;
+    console.log(global.user_id);
+    }
+    if(global.user_id=="Messi")
+    {
+    sumaGoleador[2]=sumaGoleador[2]+1;
+    console.log(global.user_id);
+    }
+    Ronaldo_label.text("Ronaldo="+sumaGoleador[0]);
+    Rivery_label.text("Rivery="+sumaGoleador[1]);
+    Messi_label.text("Messi="+sumaGoleador[2]);
+  
+});
+
 
 var posiciones=[top_img,top_img,top_img];
 var person_pos={"Rivery":0,"Ronaldo":1,"Messi":2};
@@ -56,10 +94,15 @@ var display = d3.select("body");
 
 
 var quantize = d3.scale.linear()
-    .domain([250, 500])
+    .domain([250, 550])
     .range([20,0]);
 
-console.log("quant:"+quantize(300));
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+
 var chartContainer1 = display.append("div")
     .attr("id", "Ronaldo")
     .style({width: "100px", 
@@ -110,20 +153,50 @@ chartContainer3.append("svg")
     .attr('width', 100)
     .attr('height', 100);
 
-var label = display.append("text")
+var label = svg.append("text")
     .attr("class", "goleador")
-    .attr("text-anchor", "end")
-    .attr("y", 150)
-    .attr("x", width)
-    .text("************");
+    //.attr("text-anchor", "end")
+    .attr("y", 100)
+    .attr("x", 0)
+    .text("*****");
 
-var label_gol = display.append("text")
+var label_gol = svg.append("text")
     .attr("class", "goleador")
+    .attr("text-anchor", "end")
+    .attr("y", 100)
+    .attr("x", 650)
+    .text(" goles:0");
+
+var Messi_label = svg.append("text")
+    .attr("class", "jugador")
+    .attr("text-anchor", "end")
+    .attr("y", 200)
+    .attr("x", width)
+    .text(" Messi=0 ");
+
+var Rivery_label = svg.append("text")
+    .attr("class", "jugador")
+    .attr("text-anchor", "end")
+    .attr("y", 250)
+    .attr("x", width)
+    .text(" Rivery=0 ");
+
+var Ronaldo_label = svg.append("text")
+    .attr("class", "jugador")
     .attr("text-anchor", "end")
     .attr("y", 150)
     .attr("x", width)
-    .text(" goles:0");
+    .text(" Ronaldo=0 ");
  
+
+
+function enviarGoleador(){
+    var dataRef = new Firebase("https://leocongote.firebaseio.com/message_list");
+    var newPushRef = dataRef.push();
+    newPushRef.set({user_id: goleador});
+    //console.log("entro");
+};
+
 function move(){
     this.parentNode.appendChild(this);
     var dragTarget = d3.select(this);
@@ -136,7 +209,7 @@ function move(){
     posiciones[person_pos[dragTarget.attr("id")]]=parseInt(dragTarget.style("top"));
     //console.log("quien:"+posiciones[dragTarget.attr("id")]);
     var i = posiciones.indexOf(Math.min.apply(Math, posiciones));
-    
+    goleador=pos_per[i];
     console.log(pos_per[i]);
     label.text(pos_per[i]);
     
